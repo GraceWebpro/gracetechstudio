@@ -1,27 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 import {
-  FileText,
-  Image,
-  Mic,
-  Music4,
-  Captions,
-  Wand2,
-  Palette,
-  Download,
   Sparkles,
-  Upload,
-  PlayCircle,
 } from "lucide-react";
-import AssetsPanel from "./AssetsPanel";
 import VisualPanel from "./AssetsPanel";
-import { uploadAsset } from "../../lib/storage";
 import MusicPanel from "./MusicPanel";
 import CaptionPanel from "./CaptionPanel";
 import BrandPanel from "./BrandPanel";
 import OutputPanel from "./OutputPanel";
-import { updateScene as updateSceneDB } from "../../services/SceneService";
-import { uploadVisual } from "../../services/VisualService";
 import { useOutletContext } from "react-router-dom";
 import VoicePanel from "./VoicePanel";
 
@@ -37,11 +22,10 @@ export default function WorkspacePanel({
     handleUploadVisual, 
     project,
 } = useOutletContext();
-  const [resolution,setResolution]=useState("1080p");
 
-const [fps,setFps]=useState("30 FPS");
+// const [fps,setFps]=useState("30 FPS");
 
-const [format,setFormat]=useState("MP4");
+// const [format,setFormat]=useState("MP4");
 const words = scene.script.split(/\s+/).filter(Boolean).length;
 
 const chars = scene.script.length;
@@ -51,23 +35,23 @@ const seconds = Math.ceil(words / 2.5); // about 150 words/min
 const minutes = Math.floor(seconds / 60);
 const remaining = seconds % 60;
 
-async function handleUploadAsset(file) {
+// async function handleUploadAsset(file) {
 
-  const preview = URL.createObjectURL(file);
+//   const preview = URL.createObjectURL(file);
 
-  updateScene(activeScene, {
+//   updateScene(activeScene, {
 
-      thumbnail: preview,
+//       thumbnail: preview,
 
-      visualType: file.type.startsWith("video")
-          ? "video"
-          : "image",
+//       visualType: file.type.startsWith("video")
+//           ? "video"
+//           : "image",
 
-      visualFile: file,
+//       visualFile: file,
 
-  });
+//   });
 
-}
+// }
 
 
 
