@@ -60,8 +60,6 @@ export default function Create() {
 
   const [prompt, setPrompt] = useState("");
 
-  const [creating, setCreating] = useState(false);
-
   const composerRef = useRef(null);
 
   /*

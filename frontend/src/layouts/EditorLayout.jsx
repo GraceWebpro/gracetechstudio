@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Outlet, useParams } from "react-router-dom";
 import EditorTopbar from "../components/editor/EditorTopbar";
 import ExportModal from "../components/editor/ExportModal";
@@ -50,7 +50,7 @@ const initialScenes = [
 export default function EditorLayout() {
   const { projectId } = useParams();
 
-  const [project, setProject] = useState("");
+  const [project, setProject] = useState(null);
   
   const [scenes, setScenes] = useState(initialScenes);
 
@@ -76,16 +76,6 @@ export default function EditorLayout() {
   const [resolution, setResolution] = useState("1080p");
   const [fps, setFps] = useState("30 FPS");
   const [format, setFormat] = useState("MP4");
-
-  useEffect(() => {
-    async function load() {
-        const project = await getProject(projectId);
-
-        setProject(project);
-    }
-
-    load();
-  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -161,51 +151,52 @@ export default function EditorLayout() {
 
   },[projectId]);
 
-  const undo = () => {
+ const undo = useCallback(() => {
 
-    if (!history.length) return;
+  if (!history.length) return;
+
+  const previous = history[history.length - 1];
+
+  setFuture(prev => [scenes, ...prev]);
+
+  setScenes(previous);
+
+  setHistory(prev => prev.slice(0, -1));
+
+}, [history, scenes]);
   
-    const previous = history[history.length - 1];
+ const redo = useCallback(() => {
+
+  if (!future.length) return;
+
+  const next = future[0];
+
+  setHistory(prev => [...prev, scenes]);
+
+  setScenes(next);
+
+  setFuture(prev => prev.slice(1));
+
+}, [future, scenes]);
   
-    setFuture(prev => [scenes, ...prev]);
-  
-    setScenes(previous);
-  
-    setHistory(history.slice(0, -1));
-  
-  };
-  
-  const redo = () => {
-  
-    if (!future.length) return;
-  
-    const next = future[0];
-  
-    setHistory(prev => [...prev, scenes]);
-  
-    setScenes(next);
-  
-    setFuture(future.slice(1));
-  
-  };
-  
-  const saveProject = async () => {
-  
-    await fetch("/api/projects/save",{
-  
-        method:"POST",
-  
-        body:JSON.stringify({
-  
-            project,
-  
-            scenes
-  
-        })
-  
-    });
-  
-  };
+  const saveProject = useCallback(async () => {
+
+  await fetch("/api/projects/save", {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      project,
+      scenes,
+    }),
+
+  });
+
+}, [project, scenes]);
   
   const shareProject = async () => {
   
@@ -408,39 +399,54 @@ setScenes(updated);
   };
 
 
-useEffect(()=>{
+useEffect(() => {
 
-  const handler=(e)=>{
-  
-  if(e.ctrlKey && e.key==="z"){
-  
-  e.preventDefault();
-  
-  undo();
-  
-  }
-  
-  if(e.ctrlKey && e.shiftKey && e.key==="Z"){
-  
-  redo();
-  
-  }
-  
-  if(e.ctrlKey && e.key==="s"){
-  
-  e.preventDefault();
-  
-  saveProject();
-  
-  }
-  
+  const handler = (e) => {
+
+    // Undo
+    if (
+      e.ctrlKey &&
+      !e.shiftKey &&
+      e.key.toLowerCase() === "z"
+    ) {
+      e.preventDefault();
+      undo();
+    }
+
+    // Redo
+    if (
+      e.ctrlKey &&
+      e.shiftKey &&
+      e.key.toLowerCase() === "z"
+    ) {
+      e.preventDefault();
+      redo();
+    }
+
+    // Save
+    if (
+      e.ctrlKey &&
+      e.key.toLowerCase() === "s"
+    ) {
+      e.preventDefault();
+      saveProject();
+    }
+
   };
-  
-  window.addEventListener("keydown",handler);
-  
-  return ()=>window.removeEventListener("keydown",handler);
-  
-  },[]);
+
+  window.addEventListener(
+    "keydown",
+    handler
+  );
+
+  return () => {
+    window.removeEventListener(
+      "keydown",
+      handler
+    );
+  };
+
+}, [undo, redo, saveProject]);
 
   const totalDuration = scenes.reduce(
 
@@ -512,7 +518,7 @@ useEffect(()=>{
       />
 
       <EditorTopbar 
-        title={project.title}
+        title={project?.title || "Untitled Project"}        
         onExport={openExportSettings}
         onUndo={undo} 
         onRedo={redo}
