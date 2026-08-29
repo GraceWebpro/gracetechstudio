@@ -142,7 +142,7 @@ export default function AvatarDropdown() {
                 <div>
 
                   <h3 className="font-semibold">
-                    Wilson
+                    GraceTech
                   </h3>
 
                   <p className="text-sm text-muted">

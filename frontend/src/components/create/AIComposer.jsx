@@ -1,18 +1,15 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Paperclip,
   Mic,
   WandSparkles,
   ImageIcon,
   SlidersHorizontal,
-
+  X,
 } from "lucide-react";
+
 import Button from "../ui/Button";
-import { AnimatePresence } from "framer-motion";
-import useProject from "../../hooks/useProject";
-import { createProject } from "../../services/projectService";
-import { useNavigate } from "react-router-dom";
 
 export default function AIComposer({
   value,
@@ -20,283 +17,626 @@ export default function AIComposer({
   placeholder = "Describe what you'd like to create...",
   onGenerate,
 }) {
-  const navigate = useNavigate
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [attachment, setAttachment] = useState(null);
 
-  async function handleGenerate(data) {
+  const [settings, setSettings] = useState({
+    style: "Cinematic",
+    platform: "YouTube",
+    duration: "2 Minutes",
+    aspectRatio: "16:9",
+  });
+
+  /*
+  -------------------------------------------------------
+  Update settings
+  -------------------------------------------------------
+  */
+
+  function updateSetting(key, value) {
+    setSettings((previous) => ({
+      ...previous,
+      [key]: value,
+    }));
+  }
+
+  /*
+  -------------------------------------------------------
+  Attachment
+  -------------------------------------------------------
+  */
+
+  function handleAttachment(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setAttachment(file);
+
+    // Allow selecting the same file again later
+    event.target.value = "";
+  }
+
+  function removeAttachment() {
+    setAttachment(null);
+  }
+
+  /*
+  -------------------------------------------------------
+  Generate
+  -------------------------------------------------------
+  */
+
+  async function handleGenerate() {
+    const prompt = value?.trim();
+
+    if (!prompt) {
+      alert("Describe what you want to create first.");
+      return;
+    }
+
+    if (generating) return;
+
     try {
-      const project = await createProject({
-        title: data.prompt.slice(0, 60),
-        prompt: data.prompt,
-        status: "draft",
-      });
-  
-      navigate(`/generation/${project.id}`);
-    } catch (err) {
-      console.error(err);
-      alert("Couldn't create project.");
+      setGenerating(true);
+
+      const generationData = {
+        prompt,
+
+        style: settings.style,
+
+        platform: settings.platform,
+
+        duration: settings.duration,
+
+        aspectRatio: settings.aspectRatio,
+
+        attachment,
+      };
+
+      if (onGenerate) {
+        await onGenerate(generationData);
+      }
+    } catch (error) {
+      console.error("Generation error:", error);
+
+      alert(
+        error?.message ||
+          "Something went wrong while starting the project."
+      );
+    } finally {
+      setGenerating(false);
     }
   }
 
+  /*
+  -------------------------------------------------------
+  Keyboard shortcut
+  -------------------------------------------------------
+  */
 
-const { create } = useProject();
+  function handleKeyDown(event) {
+    if (
+      event.key === "Enter" &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      event.preventDefault();
 
-async function handleCreate() {
-  const project = await create({
-    title: "Ancient Egypt",
-    description: "History Documentary",
-  });
+      handleGenerate();
+    }
+  }
 
-  console.log(project);
-}
-  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
-
-  const [settings, setSettings] = useState({
-      style: "Cinematic",
-      platform: "YouTube",
-      duration: "10 Minutes",
-      aspectRatio: "16:9",
-      voice: "Grace AI",
-  });
   return (
     <motion.div
       initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: .4 }}
+      transition={{ duration: 0.4 }}
       className="
         relative
+        overflow-hidden
         rounded-[32px]
         border
         border-border
         bg-surface
         shadow-card
-        overflow-hidden
       "
     >
-        <div className="flex items-center gap-3 px-8 pt-2">
+      {/* =====================================================
+          STATUS BAR
+      ===================================================== */}
 
-            {/* <div className="w-3 h-3 rounded-full bg-success"/> */}
+      <div className="px-6 pt-6 sm:px-8">
 
-            <div className="flex items-center justify-between pt-6">
-  <div className="flex items-center gap-3">
-    <div className="w-2.5 h-2.5 rounded-full bg-success animate-pulse" />
-    <span className="text-sm text-muted">
-      AI Assistant Ready
-    </span>
-  </div>
-<br />
-  <span className="text-xs text-muted">
-    Press ⌘ + Enter to generate
-  </span>
-</div>
+        <div className="flex items-center justify-between">
 
-        </div>
-      <textarea
-       value={value}
-       onChange={(e) => onChange(e.target.value)}
-        rows={8}
-        placeholder={placeholder}
-        className="
-          w-full
-          min-h-[260px]
-          resize-none
-          bg-transparent
-          outline-none
-          p-8
-          text-lg
-          placeholder:text-muted
-        "
-      />
+          <div className="flex items-center gap-3">
 
-<AnimatePresence>
-  {showAdvancedPanel && (
-    <motion.div
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: "auto", opacity: 1 }}
-      exit={{ height: 0, opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="
-        overflow-hidden
-        border-t
-        border-border
-      "
-    >
-      <div className="grid grid-cols-2 gap-6 p-8">
+            <div
+              className="
+                h-2.5
+                w-2.5
+                rounded-full
+                bg-success
+                animate-pulse
+              "
+            />
 
-        <div>
-          <label className="block text-sm mb-2 text-muted">
-            Video Style
-          </label>
+            <span className="text-sm text-muted">
+              AI Assistant Ready
+            </span>
 
-          <select value={settings.style}
-    onChange={(e)=>
-        setSettings({
-            ...settings,
-            style: e.target.value,
-        })
-    }className="w-full rounded-xl border border-border bg-background p-3">
-            <option>Cinematic</option>
-            <option>Modern</option>
-            <option>Minimal</option>
-            <option>Documentary</option>
-          </select>
-        </div>
+          </div>
 
-        <div>
-          <label className="block text-sm mb-2 text-muted">
-            Platform
-          </label>
+          <span className="hidden text-xs text-muted sm:block">
+            Press ⌘ + Enter to generate
+          </span>
 
-          <select value={settings.platform}
-    onChange={(e)=>
-        setSettings({
-            ...settings,
-            platform: e.target.value,
-        })
-    }className="w-full rounded-xl border border-border bg-background p-3">
-            <option>YouTube</option>
-            <option>Instagram</option>
-            <option>TikTok</option>
-            <option>Facebook</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm mb-2 text-muted">
-            Duration
-          </label>
-
-          <select value={settings.duration}
-    onChange={(e)=>
-        setSettings({
-            ...settings,
-            duration: e.target.value,
-        })
-    } className="w-full rounded-xl border border-border bg-background p-3">
-            <option>30 Seconds</option>
-            <option>1 Minute</option>
-            <option>5 Minutes</option>
-            <option>10 Minutes</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm mb-2 text-muted">
-            Aspect Ratio
-          </label>
-
-          <select value={settings.aspectRatio}
-    onChange={(e)=>
-        setSettings({
-            ...settings,
-            aspectRatio: e.target.value,
-        })
-    } className="w-full rounded-xl border border-border bg-background p-3">
-            <option>16:9</option>
-            <option>9:16</option>
-            <option>1:1</option>
-          </select>
         </div>
 
       </div>
-    </motion.div>
-  )}
-</AnimatePresence>
 
-      <div className="border-t border-border px-6 py-5 flex items-center justify-between">
+
+      {/* =====================================================
+          PROMPT
+      ===================================================== */}
+
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={handleKeyDown}
+        disabled={generating}
+        rows={8}
+        placeholder={placeholder}
+        className="
+          min-h-[260px]
+          w-full
+          resize-none
+          bg-transparent
+          p-6
+          text-lg
+          outline-none
+          placeholder:text-muted
+          disabled:opacity-60
+          sm:p-8
+        "
+      />
+
+
+      {/* =====================================================
+          ATTACHMENT PREVIEW
+      ===================================================== */}
+
+      {attachment && (
+
+        <div className="px-6 pb-5 sm:px-8">
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              gap-4
+              rounded-xl
+              border
+              border-border
+              bg-background
+              px-4
+              py-3
+            "
+          >
+
+            <div className="flex min-w-0 items-center gap-3">
+
+              <Paperclip
+                size={17}
+                className="shrink-0"
+              />
+
+              <div className="min-w-0">
+
+                <p className="truncate text-sm font-medium">
+                  {attachment.name}
+                </p>
+
+                <p className="text-xs text-muted">
+                  {(attachment.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+
+              </div>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={removeAttachment}
+              className="
+                flex
+                h-8
+                w-8
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+                hover:bg-surface
+                transition
+              "
+            >
+              <X size={16} />
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
+          ADVANCED SETTINGS
+      ===================================================== */}
+
+      <AnimatePresence>
+
+        {showAdvancedPanel && (
+
+          <motion.div
+            initial={{
+              height: 0,
+              opacity: 0,
+            }}
+            animate={{
+              height: "auto",
+              opacity: 1,
+            }}
+            exit={{
+              height: 0,
+              opacity: 0,
+            }}
+            transition={{
+              duration: 0.3,
+            }}
+            className="
+              overflow-hidden
+              border-t
+              border-border
+            "
+          >
+
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-6
+                p-6
+                md:grid-cols-2
+                sm:p-8
+              "
+            >
+
+              {/* Style */}
+
+              <div>
+
+                <label className="mb-2 block text-sm text-muted">
+                  Video Style
+                </label>
+
+                <select
+                  value={settings.style}
+                  onChange={(event) =>
+                    updateSetting(
+                      "style",
+                      event.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-border
+                    bg-background
+                    p-3
+                    outline-none
+                    focus:border-primary
+                  "
+                >
+                  <option>Cinematic</option>
+                  <option>Documentary</option>
+                  <option>Modern</option>
+                  <option>Minimal</option>
+                </select>
+
+              </div>
+
+
+              {/* Platform */}
+
+              <div>
+
+                <label className="mb-2 block text-sm text-muted">
+                  Platform
+                </label>
+
+                <select
+                  value={settings.platform}
+                  onChange={(event) =>
+                    updateSetting(
+                      "platform",
+                      event.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-border
+                    bg-background
+                    p-3
+                    outline-none
+                    focus:border-primary
+                  "
+                >
+                  <option>YouTube</option>
+                  <option>YouTube Shorts</option>
+                  <option>Instagram</option>
+                  <option>TikTok</option>
+                  <option>Facebook</option>
+                </select>
+
+              </div>
+
+
+              {/* Duration */}
+
+              <div>
+
+                <label className="mb-2 block text-sm text-muted">
+                  Duration
+                </label>
+
+                <select
+                  value={settings.duration}
+                  onChange={(event) =>
+                    updateSetting(
+                      "duration",
+                      event.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-border
+                    bg-background
+                    p-3
+                    outline-none
+                    focus:border-primary
+                  "
+                >
+                  <option>30 Seconds</option>
+                  <option>1 Minute</option>
+                  <option>2 Minutes</option>
+                  <option>5 Minutes</option>
+                  <option>10 Minutes</option>
+                </select>
+
+              </div>
+
+
+              {/* Aspect Ratio */}
+
+              <div>
+
+                <label className="mb-2 block text-sm text-muted">
+                  Aspect Ratio
+                </label>
+
+                <select
+                  value={settings.aspectRatio}
+                  onChange={(event) =>
+                    updateSetting(
+                      "aspectRatio",
+                      event.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-border
+                    bg-background
+                    p-3
+                    outline-none
+                    focus:border-primary
+                  "
+                >
+                  <option>16:9</option>
+                  <option>9:16</option>
+                  <option>1:1</option>
+                </select>
+
+              </div>
+
+            </div>
+
+          </motion.div>
+
+        )}
+
+      </AnimatePresence>
+
+
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
+
+      <div
+        className="
+          flex
+          flex-col
+          gap-4
+          border-t
+          border-border
+          px-6
+          py-5
+          sm:flex-row
+          sm:items-center
+          sm:justify-between
+        "
+      >
+
+        {/* Left actions */}
 
         <div className="flex items-center gap-3">
 
-          <motion.button
-            whileHover={{ scale:1.05 }}
-            whileTap={{ scale:.95 }}
+          {/* Attachment */}
+
+          <motion.label
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Attach file"
             className="
-              w-11
-              h-11
-              rounded-2xl
-              bg-background
-              border
-              border-border
               flex
+              h-11
+              w-11
+              cursor-pointer
               items-center
               justify-center
-              hover:border-primary
+              rounded-2xl
+              border
+              border-border
+              bg-background
               transition-all
+              hover:border-primary
             "
           >
-            <Paperclip onClick={handleCreate} size={18}/>
-          </motion.button>
+
+            <Paperclip size={18} />
+
+            <input
+              type="file"
+              hidden
+              accept="image/*,video/*,audio/*"
+              onChange={handleAttachment}
+            />
+
+          </motion.label>
+
+
+          {/* Image */}
+
+          <motion.label
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Add reference image"
+            className="
+              flex
+              h-11
+              w-11
+              cursor-pointer
+              items-center
+              justify-center
+              rounded-2xl
+              border
+              border-border
+              bg-background
+              transition-all
+              hover:border-primary
+            "
+          >
+
+            <ImageIcon size={18} />
+
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleAttachment}
+            />
+
+          </motion.label>
+
+
+          {/* Voice */}
 
           <motion.button
-            whileHover={{ scale:1.05 }}
-            whileTap={{ scale:.95 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            title="Voice input"
             className="
-              w-11
-              h-11
-              rounded-2xl
-              bg-background
-              border
-              border-border
               flex
+              h-11
+              w-11
               items-center
               justify-center
-              hover:border-primary
+              rounded-2xl
+              border
+              border-border
+              bg-background
               transition-all
+              hover:border-primary
             "
           >
-            <ImageIcon size={18}/>
-          </motion.button>
 
-          <motion.button
-            whileHover={{ scale:1.05 }}
-            whileTap={{ scale:.95 }}
-            className="
-              w-11
-              h-11
-              rounded-2xl
-              bg-background
-              border
-              border-border
-              flex
-              items-center
-              justify-center
-              hover:border-primary
-              transition-all
-            "
-          >
-            <Mic size={18}/>
+            <Mic size={18} />
+
           </motion.button>
 
         </div>
 
-        <div className="flex items-center gap-4">
+
+        {/* Right actions */}
+
+        <div className="flex items-center justify-between gap-4 sm:justify-end">
+
+          <button
+            type="button"
+            onClick={() =>
+              setShowAdvancedPanel(
+                (previous) => !previous
+              )
+            }
+            className="
+              flex
+              items-center
+              gap-2
+              text-sm
+              text-muted
+              transition
+              hover:text-text
+            "
+          >
+
+            <SlidersHorizontal size={17} />
+
+            {showAdvancedPanel
+              ? "Hide Advanced"
+              : "Advanced"}
+
+          </button>
 
 
-<button
-onClick={() => setShowAdvancedPanel(!showAdvancedPanel)}
-className="
-  flex
-  items-center
-  gap-2
-  text-sm
-  text-muted
-  hover:text-text
-  transition
-"
->
-<SlidersHorizontal size={17} />
+          <Button
+            type="button"
+            onClick={handleGenerate}
+            disabled={generating}
+            className="
+              flex
+              items-center
+              gap-2
+              whitespace-nowrap
+            "
+          >
 
-{showAdvancedPanel ? "Hide Advanced" : "Advanced"}
-</button>
+            <WandSparkles size={18} />
 
-        
+            {generating
+              ? "Starting..."
+              : "Generate"}
 
-        <Button onClick={handleGenerate}>
-
-          <WandSparkles size={18}/>
-
-          Generate
-
-        </Button>
+          </Button>
 
         </div>
 

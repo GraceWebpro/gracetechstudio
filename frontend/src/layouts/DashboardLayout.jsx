@@ -1,27 +1,63 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
 
 export default function DashboardLayout() {
+  const [sidebarCollapsed, setSidebarCollapsed] =
+    useState(false);
+
+  const [mobileSidebarOpen, setMobileSidebarOpen] =
+    useState(false);
+
   return (
-    <div className="flex h-screen bg-background">
+    <div className="min-h-screen w-full overflow-x-hidden bg-background">
+      {/* Sidebar */}
 
-      <Sidebar />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        mobileOpen={mobileSidebarOpen}
+        setMobileOpen={setMobileSidebarOpen}
+      />
 
-      <div className="flex-1 flex flex-col">
+      {/* Main area */}
 
+      <div
+        className={`
+          min-h-screen
+          transition-[padding-left]
+          duration-300
+
+          ${
+            sidebarCollapsed
+              ? "lg:pl-[76px]"
+              : "lg:pl-[260px]"
+          }
+        `}
+      >
         <Topbar />
 
-        <main className="relative flex-1 overflow-y-auto p-10">
-
-          {/* Background Glow */}
+        <main
+          className="
+            relative
+            min-h-[calc(100vh-72px)]
+            overflow-x-hidden
+            overflow-y-auto
+            p-5
+            sm:p-7
+            lg:p-10
+          "
+        >
+          {/* Background glow */}
 
           <div
             className="
               pointer-events-none
               absolute
-              top-[-250px]
               right-[-200px]
+              top-[-250px]
               h-[550px]
               w-[550px]
               rounded-full
@@ -44,17 +80,11 @@ export default function DashboardLayout() {
             "
           />
 
-          <div className="relative z-10">
-
-          <Outlet />
+          <div className="relative z-10 w-full max-w-full">
+            <Outlet />
           </div>
-
         </main>
-
       </div>
-
-      
-
     </div>
   );
 }

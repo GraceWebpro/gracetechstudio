@@ -47,6 +47,7 @@ function App() {
             element={<Generation />}
           />
 
+
           <Route
             path="/project/:id"
             element={<Project />}

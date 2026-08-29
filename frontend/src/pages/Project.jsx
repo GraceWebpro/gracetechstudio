@@ -57,25 +57,12 @@ const {
   
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [cinemaMode,setCinemaMode]=useState(false);
+  const [cinemaMode]=useState(false);
   const [leftWidth, setLeftWidth] = useState(320);
   const [rightWidth, setRightWidth] = useState(320);
   const [resizing, setResizing] = useState(null);
 
-  // const totalDuration = scenes.reduce(
-
-  //   (sum,scene)=>sum+scene.durationSeconds,
-    
-  //   0
-    
-  // );
-
-
-
-
-
-
-
+  // Playback timer
   useEffect(() => {
 
     if (!playing) return;
@@ -89,8 +76,10 @@ const {
 
     return ()=>clearInterval(timer);
 
-  }, [playing, totalDuration]);
+  }, [playing, totalDuration, setCurrentTime]);
 
+
+  // Update active scene based on current playback time
   useEffect(() => {
 
     let total = 0;
@@ -113,18 +102,18 @@ const {
 
     }
 
-}, [currentTime, scenes, activeScene]);
+}, [currentTime, scenes, activeScene, setActiveScene]);
 
 
 
   
 
-  const progress =
-  totalDuration
-  ? (currentTime / totalDuration) * 100
-  : 0;
+  //const progress =
+  //totalDuration
+  //? (currentTime / totalDuration) * 100
+  //: 0;
 
-
+  // Stop playback when video reaches the end
   useEffect(() => {
 
     if(currentTime >= totalDuration){
@@ -137,18 +126,20 @@ const {
 
     }
 
-}, [currentTime, totalDuration]);
+}, [currentTime, totalDuration, setPlaying, setCurrentTime, setActiveScene]);
 
   
-  
-  const startLeftResize = () => {
+// Start left panel resizing
+const startLeftResize = () => {
     setResizing("left");
 };
 
+// Start right panel resizing
 const startRightResize = () => {
     setResizing("right");
 };
 
+// Handle panel resizing
 useEffect(() => {
 
   function handleMove(e){
