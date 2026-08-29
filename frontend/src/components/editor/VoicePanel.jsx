@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Mic2,
   Loader2,
@@ -23,13 +23,15 @@ export default function VoicePanel({ projectId }) {
     syncNarration: true,
   });
 
-  useEffect(() => {
+  /*
+  =========================================================
+  LOAD VOICE SETTINGS
+  =========================================================
+  */
+
+  const loadSettings = useCallback(async () => {
     if (!projectId) return;
 
-    loadSettings();
-  }, [projectId]);
-
-  async function loadSettings() {
     setLoading(true);
 
     try {
@@ -38,10 +40,31 @@ export default function VoicePanel({ projectId }) {
       if (data) {
         setSettings(data);
       }
+    } catch (err) {
+      console.error(
+        "Failed to load voice settings:",
+        err
+      );
     } finally {
       setLoading(false);
     }
-  }
+  }, [projectId]);
+
+  /*
+  =========================================================
+  LOAD SETTINGS WHEN PROJECT CHANGES
+  =========================================================
+  */
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  /*
+  =========================================================
+  UPDATE SETTING
+  =========================================================
+  */
 
   async function update(field, value) {
     const updated = {
@@ -50,13 +73,28 @@ export default function VoicePanel({ projectId }) {
     };
 
     setSettings(updated);
-
     setSaving(true);
 
-    await saveVoiceSettings(projectId, updated);
-
-    setSaving(false);
+    try {
+      await saveVoiceSettings(
+        projectId,
+        updated
+      );
+    } catch (err) {
+      console.error(
+        "Failed to save voice settings:",
+        err
+      );
+    } finally {
+      setSaving(false);
+    }
   }
+
+  /*
+  =========================================================
+  LOADING STATE
+  =========================================================
+  */
 
   if (loading) {
     return (
@@ -68,6 +106,12 @@ export default function VoicePanel({ projectId }) {
       </div>
     );
   }
+
+  /*
+  =========================================================
+  UI
+  =========================================================
+  */
 
   return (
     <div className="space-y-7">
@@ -86,8 +130,9 @@ export default function VoicePanel({ projectId }) {
 
         </div>
 
-        <p className="text-sm text-muted mt-1">
-          Configure the narration voice used across the entire project.
+        <p className="mt-1 text-sm text-muted">
+          Configure the narration voice used
+          across the entire project.
         </p>
 
       </div>
@@ -103,28 +148,29 @@ export default function VoicePanel({ projectId }) {
         <select
           value={settings.voice}
           onChange={(e) =>
-            update("voice", e.target.value)
+            update(
+              "voice",
+              e.target.value
+            )
           }
           className="
-          mt-2
-          w-full
-          rounded-2xl
-          border
-          border-border
-          bg-background
-          px-4
-          py-3
-          outline-none
-          focus:border-primary
+            mt-2
+            w-full
+            rounded-2xl
+            border
+            border-border
+            bg-background
+            px-4
+            py-3
+            outline-none
+            focus:border-primary
           "
         >
-
           <option>Grace AI</option>
           <option>Emma</option>
           <option>Michael</option>
           <option>Olivia</option>
           <option>James</option>
-
         </select>
 
       </div>
@@ -140,22 +186,24 @@ export default function VoicePanel({ projectId }) {
         <select
           value={settings.style}
           onChange={(e) =>
-            update("style", e.target.value)
+            update(
+              "style",
+              e.target.value
+            )
           }
           className="
-          mt-2
-          w-full
-          rounded-2xl
-          border
-          border-border
-          bg-background
-          px-4
-          py-3
-          outline-none
-          focus:border-primary
+            mt-2
+            w-full
+            rounded-2xl
+            border
+            border-border
+            bg-background
+            px-4
+            py-3
+            outline-none
+            focus:border-primary
           "
         >
-
           <option>Professional</option>
           <option>Friendly</option>
           <option>Storytelling</option>
@@ -163,7 +211,6 @@ export default function VoicePanel({ projectId }) {
           <option>Calm</option>
           <option>Excited</option>
           <option>Dramatic</option>
-
         </select>
 
       </div>
@@ -172,7 +219,7 @@ export default function VoicePanel({ projectId }) {
 
       <div>
 
-        <div className="flex justify-between mb-2">
+        <div className="mb-2 flex justify-between">
 
           <label className="text-sm font-medium">
             Speech Speed
@@ -205,7 +252,7 @@ export default function VoicePanel({ projectId }) {
 
       <div>
 
-        <div className="flex justify-between mb-2">
+        <div className="mb-2 flex justify-between">
 
           <label className="text-sm font-medium">
             Expressiveness
@@ -283,14 +330,14 @@ export default function VoicePanel({ projectId }) {
 
       <div
         className="
-        rounded-xl
-        border
-        border-border
-        bg-background
-        p-3
-        flex
-        items-center
-        justify-between
+          flex
+          items-center
+          justify-between
+          rounded-xl
+          border
+          border-border
+          bg-background
+          p-3
         "
       >
 

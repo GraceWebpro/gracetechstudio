@@ -1,14 +1,12 @@
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Clock3,
   MoreVertical,
-  Sparkles,
   Copy,
   ArrowUp,
   ArrowDown,
   Trash2,
-  Mic,
   Image,
 } from "lucide-react";
 import FloatingMenu from "../ui/FloatingMenu";

@@ -21,7 +21,6 @@ export default function VideoControls({
     onFullscreen,
 }) {
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [volume,setVolume]=useState(1);
 
   const progress =
   duration > 0
