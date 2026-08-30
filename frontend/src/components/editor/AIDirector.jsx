@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import AIInput from "./AIInput";
-import {
-    Clapperboard,
-    Mic2,
-    Music4,
-    FilePenLine,
-    Languages,
-    Captions,
-    Wand2,
-  } from "lucide-react";
+// import {
+//     Clapperboard,
+//     Mic2,
+//     Music4,
+//     FilePenLine,
+//     Languages,
+//     Captions,
+//     Wand2,
+//   } from "lucide-react";
   
   // const suggestions = [
   //   {

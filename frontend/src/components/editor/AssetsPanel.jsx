@@ -19,7 +19,7 @@ export default function VisualPanel({
 
   const [style, setStyle] = useState("Cinematic");
 
-  const [type, setType] = useState("Image");
+  // const [type, setType] = useState("Image");
 
   const fileInputRef = useRef(null);
 
@@ -32,7 +32,7 @@ export default function VisualPanel({
 useEffect(() => {
 
   setStyle(scene?.style || "Cinematic");
-  setType(scene?.type || "Image");
+  // setType(scene?.type || "Image");
 
 }, [scene]);
 
