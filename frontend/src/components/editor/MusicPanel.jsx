@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Search,
   Music2,
   Upload,
   Sparkles,
@@ -40,7 +39,7 @@ export default function MusicPanel({
   onRemoveMusic,
   onUpdateMusic,
 }) {
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [playing, setPlaying] = useState(null);
   const [selected, setSelected] = useState(scene?.musicId || 1);
   const [volume, setVolume] = useState(scene?.musicVolume || 70);

@@ -2,12 +2,10 @@ import { useRef, useState, useEffect } from "react";
 import {
   Sparkles,
   Upload,
- Image,
- Video,
- RefreshCw,
- Search,
- Palette,
- Wand2,
+  Image,
+  RefreshCw,
+  Palette,
+  Wand2,
 } from "lucide-react";
 
 export default function VisualPanel({

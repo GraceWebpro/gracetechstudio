@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   Plus,
   Sparkles,
@@ -24,38 +24,38 @@ export default function AddSceneCard({
 
 
 
-  const actions = [
-    {
-      icon: Sparkles,
-      label: "AI",
-      color: "bg-violet-500",
-      onClick: onGenerateAI,
-    },
-    {
-      icon: Upload,
-      label: "Video",
-      color: "bg-blue-500",
-      onClick: onUpload,
-    },
-    {
-      icon: Image,
-      label: "Images",
-      color: "bg-emerald-500",
-      onClick: onImages,
-    },
-    {
-      icon: UserCircle2,
-      label: "Avatar",
-      color: "bg-orange-500",
-      onClick: onAvatar,
-    },
-    {
-      icon: FileText,
-      label: "Blank",
-      color: "bg-slate-600",
-      onClick: onBlank,
-    },
-  ];
+  // const actions = [
+  //   {
+  //     icon: Sparkles,
+  //     label: "AI",
+  //     color: "bg-violet-500",
+  //     onClick: onGenerateAI,
+  //   },
+  //   {
+  //     icon: Upload,
+  //     label: "Video",
+  //     color: "bg-blue-500",
+  //     onClick: onUpload,
+  //   },
+  //   {
+  //     icon: Image,
+  //     label: "Images",
+  //     color: "bg-emerald-500",
+  //     onClick: onImages,
+  //   },
+  //   {
+  //     icon: UserCircle2,
+  //     label: "Avatar",
+  //     color: "bg-orange-500",
+  //     onClick: onAvatar,
+  //   },
+  //   {
+  //     icon: FileText,
+  //     label: "Blank",
+  //     color: "bg-slate-600",
+  //     onClick: onBlank,
+  //   },
+  // ];
 
   const items = [
     {

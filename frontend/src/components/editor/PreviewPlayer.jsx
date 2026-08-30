@@ -4,50 +4,48 @@ import { motion } from "framer-motion";
 import PreviewCanvas from "./PreviewCanvas";
 import VideoControls from "./VideoControls";
 import AIDirector from "./AIDirector";
-import ExportModal from "./ExportModal";
 import { rewriteScene } from "../../services/ai/rewriteScene";
 
-const initialScenes = [
-  {
-    id: 1,
-    title: "Introduction",
-    duration: "00:18",
-    durationSeconds:18,
-    script:
-      "Welcome to Ancient Egypt. For over three thousand years one of the greatest civilizations flourished along the Nile.",
-    thumbnail: null,
-  },
-  {
-    id: 2,
-    title: "History Begins",
-    duration: "00:34",
-    durationSeconds:34,
-    script:
-      "Ancient Egypt developed incredible engineering and culture.",
-    thumbnail: null,
-  },
-  {
-    id: 3,
-    title: "The Pharaohs",
-    duration: "00:28",
-    durationSeconds:28,
-    script:
-      "The Pharaoh ruled as both king and god.",
-    thumbnail: null,
-  },
-  {
-    id: 4,
-    title: "Legacy",
-    duration: "00:22",
-    durationSeconds:22,
-    script:
-      "Even today Ancient Egypt continues to inspire the world.",
-    thumbnail: null,
-  },
-];
+// const initialScenes = [
+//   {
+//     id: 1,
+//     title: "Introduction",
+//     duration: "00:18",
+//     durationSeconds:18,
+//     script:
+//       "Welcome to Ancient Egypt. For over three thousand years one of the greatest civilizations flourished along the Nile.",
+//     thumbnail: null,
+//   },
+//   {
+//     id: 2,
+//     title: "History Begins",
+//     duration: "00:34",
+//     durationSeconds:34,
+//     script:
+//       "Ancient Egypt developed incredible engineering and culture.",
+//     thumbnail: null,
+//   },
+//   {
+//     id: 3,
+//     title: "The Pharaohs",
+//     duration: "00:28",
+//     durationSeconds:28,
+//     script:
+//       "The Pharaoh ruled as both king and god.",
+//     thumbnail: null,
+//   },
+//   {
+//     id: 4,
+//     title: "Legacy",
+//     duration: "00:22",
+//     durationSeconds:22,
+//     script:
+//       "Even today Ancient Egypt continues to inspire the world.",
+//     thumbnail: null,
+//   },
+// ];
 
 export default function PreviewPlayer({
-  scene,
   scenes,
   setScenes,
   setHistory,

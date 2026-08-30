@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import {
   Upload,
-  Image,
   Globe,
   Palette,
   Trash2,

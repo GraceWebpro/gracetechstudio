@@ -33,7 +33,7 @@ export default function CaptionPanel({
       language,
       animation,
     });
-  }, [enabled, style, language, animation]);
+  }, [enabled, style, language, animation, onChange]);
 
   return (
     <div className="space-y-6">
